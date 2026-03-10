@@ -1,1 +1,260 @@
-<h1> Hello World! Welcome to My Littlest Hat Shop! </h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spirals · cursor charm</title>
+  <style>
+    /* reset & full page with custom cursor (fallback + image) */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="none" stroke="%23aa7ced" stroke-width="2" stroke-dasharray="6 4"/><circle cx="16" cy="16" r="8" fill="%23ffb347" stroke="%23ffffff" stroke-width="2"/><path d="M10 12 L22 12 L20 20 L12 20 Z" fill="%23f5f0d7" stroke="%23997a5d" stroke-width="1.2"/><circle cx="13" cy="15" r="1.5" fill="%23333"/><circle cx="19" cy="15" r="1.5" fill="%23333"/></svg>') 16 16, auto;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #1d1b2b 0%, #2a2740 100%);
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* decorative glass panel */
+    .card {
+      background: rgba(22, 20, 35, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 3.5rem 3.5rem 2rem 2rem;
+      padding: 2.5rem 2rem 3rem 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(200, 180, 255, 0.15) inset;
+      border: 1px solid rgba(255, 215, 245, 0.2);
+      max-width: 1100px;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fbe4ff;
+      text-shadow: 0 0 8px #c57cff, 1px 2px 0 #2d264f;
+      margin-bottom: 1rem;
+      text-align: center;
+      word-break: keep-all;
+      border-bottom: 2px dashed #b486f0;
+      padding-bottom: 0.7rem;
+      display: inline-block;
+    }
+
+    .cursor-note {
+      font-size: 1.2rem;
+      background: #312e4aa0;
+      color: #fadcac;
+      padding: 0.5rem 1.8rem;
+      border-radius: 60px;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(4px);
+      border: 1px solid #b28aff;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      box-shadow: 0 5px 0 #191529;
+    }
+
+    .cursor-note span {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 2px 3px black);
+    }
+
+    /* spinning picture gallery — flex wrap + 3d-ish images */
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 2.2rem 2rem;
+      margin: 2.5rem 0 1rem 0;
+    }
+
+    /* each spinning tile */
+    .spin-pic {
+      width: 160px;
+      height: 160px;
+      border-radius: 40% 60% 40% 60% / 60% 40% 60% 40%;
+      background: #ffdbb5;
+      box-shadow: 0 15px 25px -8px #0e0b1a, 0 0 0 4px #fbe4d3, 0 0 0 8px #8879b0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease;
+      /* animation: spin itself */
+      animation: slowSpin 8s infinite alternate cubic-bezier(0.25, 0.1, 0.15, 1.2);
+      will-change: transform;
+    }
+
+    /* different speed & variation for each tile */
+    .spin-pic:nth-child(1) { animation-duration: 9s; background: #c9abff; border-radius: 30% 70% 50% 50% / 40% 40% 60% 60%; }
+    .spin-pic:nth-child(2) { animation-duration: 11s; background: #9fd9ff; border-radius: 60% 40% 30% 70% / 70% 40% 60% 30%; }
+    .spin-pic:nth-child(3) { animation-duration: 7.4s; background: #ffb1b1; border-radius: 50% 50% 30% 70% / 50% 70% 30% 50%; }
+    .spin-pic:nth-child(4) { animation-duration: 10.2s; background: #a3f0d1; border-radius: 74% 26% 63% 37% / 48% 68% 32% 52%; }
+    .spin-pic:nth-child(5) { animation-duration: 8.3s; background: #f5b06d; border-radius: 38% 62% 26% 74% / 71% 37% 63% 29%; }
+    .spin-pic:nth-child(6) { animation-duration: 12s; background: #e3a6ff; border-radius: 83% 17% 58% 42% / 42% 68% 32% 58%; }
+
+    /* inner "picture" – using pure CSS images (no external assets) */
+    .picture-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(0deg); /* keep text stable relative to container */
+      font-weight: bold;
+      color: #1b1022;
+      text-shadow: 2px 2px 0 #ffffffc0;
+      transition: transform 0.2s;
+    }
+
+    /* each picture has its own little scene */
+    .pic1 .picture-content { font-size: 3.5rem; } /* mountain */
+    .pic2 .picture-content { font-size: 2.8rem; flex-direction: row; gap: 0.3rem; } /* sun */
+    .pic3 .picture-content { font-size: 2.2rem; } /* whale */
+    .pic4 .picture-content { font-size: 3rem; } /* star */
+    .pic5 .picture-content { font-size: 3rem; } /* cup */
+    .pic6 .picture-content { font-size: 2.5rem; } /* cake */
+
+    /* text description inside each picture (tiny caption) */
+    .pic-label {
+      font-size: 0.7rem;
+      background: rgba(0,0,0,0.3);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      text-shadow: none;
+      letter-spacing: 1px;
+      margin-top: 0.2rem;
+      backdrop-filter: blur(2px);
+    }
+
+    /* animation keyframes: spin and slight scale */
+    @keyframes slowSpin {
+      0% {
+        transform: rotate(0deg) scale(1);
+      }
+      25% {
+        transform: rotate(120deg) scale(1.02);
+      }
+      50% {
+        transform: rotate(240deg) scale(0.98);
+      }
+      100% {
+        transform: rotate(360deg) scale(1.05);
+      }
+    }
+
+    /* optional hover — pause spin on individual pic */
+    .spin-pic:hover {
+      animation-play-state: paused;
+      box-shadow: 0 0 0 6px #ffe38f, 0 0 0 12px #9f88d3;
+      transition: box-shadow 0.2s;
+    }
+
+    /* footer / extra charm */
+    .foot-spark {
+      margin-top: 2.8rem;
+      color: #cbb2ff;
+      font-size: 1rem;
+      background: #1b1730d0;
+      padding: 0.5rem 2rem;
+      border-radius: 40px;
+      border: 1px solid #a67cdf;
+      display: inline-flex;
+      gap: 1rem;
+      backdrop-filter: blur(3px);
+    }
+
+    .foot-spark span {
+      filter: drop-shadow(0 0 5px gold);
+    }
+
+    /* fully custom cursor fallback – we already set global cursor to svg.
+       but to make it super clear: a little extra style on links etc */
+    a, button, .spin-pic {
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="none" stroke="%23ffaaff" stroke-width="2" stroke-dasharray="6 4"/><circle cx="16" cy="16" r="8" fill="%23f7d45e" stroke="%23ffffff" stroke-width="2"/><path d="M10 12 L22 12 L20 20 L12 20 Z" fill="%23f5f0d7" stroke="%23997a5d" stroke-width="1.2"/><circle cx="13" cy="15" r="1.5" fill="%23333"/><circle cx="19" cy="15" r="1.5" fill="%23333"/></svg>') 16 16, auto;
+    }
+
+    /* make responsive */
+    @media (max-width: 700px) {
+      .spin-pic { width: 130px; height: 130px; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- title & cursor reminder -->
+    <div style="text-align: center;">
+      <h1>✦ SPIN DIZZY ✦</h1>
+      <div class="cursor-note">
+        <span>🖱️</span> your cursor is now a tiny painting  <span>✨</span>
+      </div>
+    </div>
+
+    <!-- spinning picture gallery (six unique hand-drawn svg style pictures) -->
+    <div class="gallery">
+      <!-- picture 1 : mountain scene -->
+      <div class="spin-pic pic1">
+        <div class="picture-content">
+          🏔️<br> <span class="pic-label">MT. FUJI</span>
+        </div>
+      </div>
+      <!-- picture 2 : sun with rays -->
+      <div class="spin-pic pic2">
+        <div class="picture-content">
+          ☀️🌻<br> <span class="pic-label">SUNNY</span>
+        </div>
+      </div>
+      <!-- picture 3 : whale -->
+      <div class="spin-pic pic3">
+        <div class="picture-content">
+          🐋<br> <span class="pic-label">WHALE</span>
+        </div>
+      </div>
+      <!-- picture 4 : starry night -->
+      <div class="spin-pic pic4">
+        <div class="picture-content">
+          🌟🌙<br> <span class="pic-label">NIGHT</span>
+        </div>
+      </div>
+      <!-- picture 5 : coffee/tea -->
+      <div class="spin-pic pic5">
+        <div class="picture-content">
+          🍵<br> <span class="pic-label">TEA TIME</span>
+        </div>
+      </div>
+      <!-- picture 6 : birthday cake -->
+      <div class="spin-pic pic6">
+        <div class="picture-content">
+          🎂<br> <span class="pic-label">CAKE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- extra confirmation: spinning text or something -->
+    <div class="foot-spark">
+      <span>🌀</span> each tile spins forever · hover to pause  <span>🌀</span>
+    </div>
+  </div>
+  <!-- tiny note: the custom cursor is an inlined svg (picture of a cat‑like flower? just a cute shape) -->
+  <div style="text-align: center; margin-top: 1rem; color: #8a7bb5; font-size: 0.85rem; opacity: 0.9;">
+    ⬩ cursor is a custom illustrated dot with sparkles ⬩
+  </div>
+</body>
+</html>
